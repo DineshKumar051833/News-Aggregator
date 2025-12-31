@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body{
+            background-color: #f8f9fa;
+        }
+        .card{
+            border-radius: 12px;
+            padding: 2rem;
+            backgroud: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="container d-flex align-items-center justify-content-center vh-100">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <h3 class="text-center mb-4">Login</h3>
+
+            <!-- Error message dynamically rendered -->
+            <div th:if="${Error}" class="alert alert-danger" th:text="${Error}"></div>
+
+            <!-- Login form -->
+            <form th:action="@{/loginUser}" method="post">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email address</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your Email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your Password" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Login</button>
+            </form>
+
+            <!-- Sign up link -->
+            <p class="text-center mt-3">
+                Don’t have an account? <a th:href="@{/signup}">Sign Up</a>
+            </p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

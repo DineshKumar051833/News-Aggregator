@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    body {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    .dark-mode h1,
+    .dark-mode h2,
+    .dark-mode h3,
+    .dark-mode h4,
+    .dark-mode h5 {
+      color: #ffffff;
+    }
+
+    .dark-mode .navbar {
+      background-color: #1e1e1e !important;
+    }
+
+    .dark-mode .navbar a {
+      color: #ffffff !important;
+    }
+
+    .dark-mode .card {
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+  </style>
+  <style>
+    body {
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.dark-mode {
+      background-color: #121212;
+      color: #ffffff;
+    }
+
+    .dark-mode h1,
+    .dark-mode h2,
+    .dark-mode h3,
+    .dark-mode h4,
+    .dark-mode h5 {
+      color: #ffffff;
+    }
+
+    .dark-mode .navbar {
+      background-color: #1e1e1e !important;
+    }
+
+    .dark-mode .navbar a {
+      color: #ffffff !important;
+    }
+
+    .dark-mode .card {
+      background-color: #1e1e1e;
+      color: #ffffff;
+    }
+  </style>
+
+</head>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">NewsApp</a>
+    <div class="d-flex gap-2">
+      <a href="/Profile.html" class="btn btn-outline-light">Profile</a>
+      <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Content -->
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 id="welcome-msg">Welcome, User!</h2>
+    <button id="theme-toggle" class="btn btn-secondary">🌙 Dark Mode</button>
+  </div>
+
+  <h4>Top Headlines</h4>
+  <div id="headlines-container" class="list-group mb-4"></div>
+
+  <h4>Latest News</h4>
+  <div id="everything-container" class="list-group"></div>
+</div>
+
+<script>
+  // 🌙 Dark/Light toggle
+  const themeBtn = document.getElementById("theme-toggle");
+  themeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark-mode");
+    themeBtn.textContent = document.body.classList.contains("dark-mode") ? "☀️ Light Mode" : "🌙 Dark Mode";
+    localStorage.setItem("theme", document.body.classList.contains("dark-mode") ? "dark" : "light");
+  });
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark-mode");
+    themeBtn.textContent = "☀️ Light Mode";
+  }
+
+  // 🔹 Fetch private home data
+  async function loadPrivateHome() {
+    try {
+      const res = await fetch("/home");
+      if (res.status === 401) {
+        window.location.href = "/Login"; // redirect to login if not logged in
+        return;
+      }
+      const data = await res.json();
+
+      // Welcome message
+      document.getElementById("welcome-msg").textContent = `Welcome, ${data.user.name}!`;
+
+      // Render Headlines
+      renderNews(data.headlines, document.getElementById("headlines-container"));
+
+      // Render Everything
+      renderNews(data.everything, document.getElementById("everything-container"));
+
+    } catch (err) {
+      console.error("Error fetching private home:", err);
+    }
+  }
+
+  // 🔹 Render news list
+  function renderNews(newsList, container) {
+    container.innerHTML = "";
+    newsList.forEach(news => {
+      const item = document.createElement("a");
+      item.href = news.url || "#";
+      item.target = "_blank";
+      item.className = "list-group-item list-group-item-action d-flex gap-3 py-3 align-items-start";
+      item.innerHTML = `
+        <img src="${news.image || 'https://via.placeholder.com/120'}"
+             alt="news" width="120" height="80" class="rounded">
+        <div class="d-flex flex-column">
+          <h5>${news.title || "No Title"}</h5>
+          <p>${news.description || "No description available."}</p>
+          <button class="btn btn-sm btn-outline-primary mt-2"
+        onclick='event.stopPropagation(); event.preventDefault(); saveNews(${JSON.stringify(news)})'>Save</button>
+        </div>
+      `;
+      container.appendChild(item);
+    });
+  }
+
+  // 🔹 Save news
+  async function saveNews(news) {
+    try {
+      const res = await fetch("/saved", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          url: news.url,
+          title: news.title,
+          description: news.description,
+          imageUrl: news.image,
+          category: "general"
+        })
+      });
+      if (res.ok) {
+        alert("News saved successfully!");
+      } else {
+        alert("Already saved");
+      }
+    } catch (err) {
+      console.error("Error saving news:", err);
+    }
+  }
+
+  // Load data on page load
+  loadPrivateHome();
+</script>
+</html>
